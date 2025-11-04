@@ -4,7 +4,7 @@ from langchain.tools import tool
 from langchain.messages import AIMessage, ToolMessage, RemoveMessage
 from langgraph.graph.message import REMOVE_ALL_MESSAGES
 from langchain.agents import create_agent, AgentState
-from langgraph.checkpoint.postgres import PostgresSaver
+from langgraph.checkpoint.memory import InMemorySaver
 from langchain.agents.middleware import before_model
 from langgraph.runtime import Runtime
 from typing import Any
@@ -151,7 +151,7 @@ os.environ["OPENAI_API_BASE"] = "https://api.deepseek.com/v1"
 # ===== AGENTS =====
 hero_agent = create_agent(
     model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
-    tools=[get_hero_stats, get_hero_benchmarks, get_hero_id_by_name],
+    tools=[get_hero_stats, get_hero_benchmarks, get_hero_id_by_name, get_hero_name_by_id],
     system_prompt="Ты умный помощник, который помогает с анализом данных героев Dota 2"
 )
 
@@ -196,6 +196,8 @@ def print_response(resp):
 router_agent = create_agent(
     model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
     tools=[hero_agent_tool, hero_matchup_tool, player_agent_tool],
+    middleware=[trim_messages],
+    checkpointer=InMemorySaver(),
     system_prompt=(
         "Ты управляющий агент."
         "Если запрос про героя — hero_agent_tool, "

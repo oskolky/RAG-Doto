@@ -11,7 +11,7 @@ from langgraph.checkpoint.postgres import PostgresSaver
 # === Pydantic модель ===
 class Query(BaseModel):
     text: str
-    thread_id: str = "web"
+    thread_id: int = 1
 
 
 app = FastAPI()
