@@ -1,13 +1,20 @@
 from langchain_openai import ChatOpenAI
+from langchain_core.runnables import RunnableConfig
 from langchain.tools import tool
-from langchain.messages import AIMessage, ToolMessage
-from langchain.agents import create_agent
+from langchain.messages import AIMessage, ToolMessage, RemoveMessage
+from langgraph.graph.message import REMOVE_ALL_MESSAGES
+from langchain.agents import create_agent, AgentState
 from langgraph.checkpoint.postgres import PostgresSaver
+from langchain.agents.middleware import before_model
+from langgraph.runtime import Runtime
+from typing import Any
 import requests
 import os
 
 
-# ===== HERO DATA =====
+
+# ===== BEFORE MODEL =====
+@before_model
 def load_heroes():
     url = "https://api.opendota.com/api/heroes"
     heroes = requests.get(url).json()
@@ -16,6 +23,26 @@ def load_heroes():
 
 HEROES = load_heroes()
 HEROES_REVERSE = {v: k for k, v in HEROES.items()}
+
+
+@before_model
+def trim_messages(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+    """Keep only the last few messages to fit context window."""
+    messages = state["messages"]
+
+    if len(messages) <= 3:
+        return None
+
+    first_msg = messages[0]
+    recent_messages = messages[-3:] if len(messages) % 2 == 0 else messages[-4:]
+    new_messages = [first_msg] + recent_messages
+
+    return {
+        "messages": [
+            RemoveMessage(id=REMOVE_ALL_MESSAGES),
+            *new_messages
+        ]
+    }
 
 # ===== TOOLS =====
 @tool
@@ -123,6 +150,7 @@ os.environ["OPENAI_API_KEY"] = "sk-2d927361ddd446859c94aa9f9442bd95"
 os.environ["OPENAI_API_BASE"] = "https://api.deepseek.com/v1"
 
 # ===== AGENTS =====
+
 hero_agent = create_agent(
     model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
     tools=[get_hero_stats, get_hero_benchmarks, get_hero_id_by_name],
@@ -157,33 +185,7 @@ def player_agent_tool(query: str):
     """Вызов агента для  матчей игрока."""
     return player_agent.invoke({"messages":[{"role":"user","content":query}]})["messages"][-1].content
 
-# ===== ROUTER AGENT =====
-DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
-with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
-    checkpointer.setup()
-    router_agent = create_agent(
-        model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
-        tools=[hero_agent_tool, hero_matchup_tool, player_agent_tool],
-        checkpointer=checkpointer,
-        system_prompt=(
-            "Ты управляющий агент. Не отвечай сам. "
-            "Если запрос про героя — hero_agent_tool, "
-            "если про матчапы — hero_matchup_tool, "
-            "если про игрока — player_agent_tool."
-        )
-
-    )
-
-    # ===== TEST =====
-    if __name__ == "__main__":
-        response = router_agent.invoke(
-            {"messages":[{"role":"user","content":"Матчапы антимага"}]},
-            {"configurable": {"thread_id": "1"}},
-        )
-
-        print(type(response))
-        print(response)
-
+def print_response(resp: str):
     texts = []
     for msg in response["messages"]:
         if isinstance(msg, (AIMessage, ToolMessage)):
@@ -192,3 +194,32 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
     # Выведем только текст последнего ответа
     if texts:
         print(texts[-1])
+
+# ===== ROUTER AGENT =====
+DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
+    checkpointer.setup()
+    router_agent = create_agent(
+        model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
+        tools=[hero_agent_tool, hero_matchup_tool, player_agent_tool],
+        checkpointer=checkpointer,
+        middleware=[trim_messages],
+        system_prompt=(
+            "Ты управляющий агент."
+            "Если запрос про героя — hero_agent_tool, "
+            "если про матчапы — hero_matchup_tool, "
+            "если про игрока — player_agent_tool."
+        )
+
+    )
+
+
+
+    # ===== TEST =====
+    if __name__ == "__main__":
+        response = router_agent.invoke(
+            {"messages": [{"role": "user", "content": "Я новичок, мне выбрать этого героя или шедоу финда??"}]},
+            {"configurable": {"thread_id": "1"}},
+        )
+
+        print_response(response)
