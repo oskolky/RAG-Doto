@@ -14,7 +14,6 @@ import os
 
 
 # ===== BEFORE MODEL =====
-@before_model
 def load_heroes():
     url = "https://api.opendota.com/api/heroes"
     heroes = requests.get(url).json()
@@ -150,7 +149,6 @@ os.environ["OPENAI_API_KEY"] = "sk-2d927361ddd446859c94aa9f9442bd95"
 os.environ["OPENAI_API_BASE"] = "https://api.deepseek.com/v1"
 
 # ===== AGENTS =====
-
 hero_agent = create_agent(
     model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
     tools=[get_hero_stats, get_hero_benchmarks, get_hero_id_by_name],
@@ -185,41 +183,35 @@ def player_agent_tool(query: str):
     """Вызов агента для  матчей игрока."""
     return player_agent.invoke({"messages":[{"role":"user","content":query}]})["messages"][-1].content
 
-def print_response(resp: str):
+def print_response(resp):
     texts = []
-    for msg in response["messages"]:
+    for msg in resp["messages"]:
         if isinstance(msg, (AIMessage, ToolMessage)):
             texts.append(msg.content)
-
-    # Выведем только текст последнего ответа
     if texts:
         print(texts[-1])
 
 # ===== ROUTER AGENT =====
-DB_URI = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
-with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
-    checkpointer.setup()
-    router_agent = create_agent(
-        model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
-        tools=[hero_agent_tool, hero_matchup_tool, player_agent_tool],
-        checkpointer=checkpointer,
-        middleware=[trim_messages],
-        system_prompt=(
-            "Ты управляющий агент."
-            "Если запрос про героя — hero_agent_tool, "
-            "если про матчапы — hero_matchup_tool, "
-            "если про игрока — player_agent_tool."
-        )
 
+router_agent = create_agent(
+    model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
+    tools=[hero_agent_tool, hero_matchup_tool, player_agent_tool],
+    system_prompt=(
+        "Ты управляющий агент."
+        "Если запрос про героя — hero_agent_tool, "
+        "если про матчапы — hero_matchup_tool, "
+        "если про игрока — player_agent_tool."
     )
 
+)
 
 
-    # ===== TEST =====
-    if __name__ == "__main__":
-        response = router_agent.invoke(
-            {"messages": [{"role": "user", "content": "Я новичок, мне выбрать этого героя или шедоу финда??"}]},
-            {"configurable": {"thread_id": "1"}},
-        )
 
-        print_response(response)
+# ===== TEST =====
+if __name__ == "__main__":
+    response = router_agent.invoke(
+        {"messages": [{"role": "user", "content": "Отправь мне привет"}]},
+        {"configurable": {"thread_id": "1"}},
+    )
+
+    print_response(response)

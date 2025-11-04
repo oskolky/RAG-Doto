@@ -1,13 +1,15 @@
 # Основные зависимости
-langgraph
-langchain
-langchain-openai
-langchain-core
+langgraph~=1.0.2
+langchain~=1.0.3
+langchain-openai~=1.0.2
+langchain-core~=1.0.3
 
 # Для HTTP-запросов к OpenDota API
-requests
+requests~=2.32.5
 # Для работы с переменными окружения (опционально)
 python-dotenv
 
 # Для корректной работы агента (React agent)
-pydantic
+pydantic~=2.12.3
+fastapi~=0.121.0
+psycopg~=3.2.12
