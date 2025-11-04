@@ -1,0 +1,13 @@
+# Основные зависимости
+langgraph
+langchain
+langchain-openai
+langchain-core
+
+# Для HTTP-запросов к OpenDota API
+requests
+# Для работы с переменными окружения (опционально)
+python-dotenv
+
+# Для корректной работы агента (React agent)
+pydantic
