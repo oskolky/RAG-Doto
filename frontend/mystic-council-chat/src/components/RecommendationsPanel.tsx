@@ -1,62 +1,64 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sparkles, Shield, Swords } from "lucide-react";
-import heroPlaceholder from "@/assets/hero-placeholder.jpg";
+import { Swords, Shield } from "lucide-react";
+import { useRandomHeroes } from "@/hooks/useRandomHeroes";
+import { useRandomItems } from "@/hooks/useRandomItems";
 
 interface Recommendation {
   id: string;
   name: string;
+  img: string;
   category: string;
   description: string;
 }
 
-const mockHeroes: Recommendation[] = [
-  { id: "1", name: "Anti-Mage", category: "Carry", description: "Mobile carry with strong late game" },
-  { id: "2", name: "Crystal Maiden", category: "Support", description: "Intelligence support with crowd control" },
-  { id: "3", name: "Axe", category: "Tank", description: "Durable initiator with taunt ability" },
-];
+interface RecommendationsPanelProps {
+  onItemClick: (query: string) => void;
+}
 
-const mockItems: Recommendation[] = [
-  { id: "1", name: "Black King Bar", category: "Core", description: "Spell immunity for carries" },
-  { id: "2", name: "Blink Dagger", category: "Mobility", description: "Instant positioning tool" },
-  { id: "3", name: "Aghanim's Scepter", category: "Upgrade", description: "Ultimate ability enhancement" },
-];
+const RecommendationsPanel = ({ onItemClick }: RecommendationsPanelProps) => {
+  const heroes = useRandomHeroes(3); // 3 случайных героя
+  const items = useRandomItems(3);   // 3 случайных предмета
 
-const RecommendationsPanel = () => {
+  const handleHeroClick = (heroName: string) => {
+    onItemClick(`Расскажи мне о герое ${heroName}`);
+  };
+
+  const handleItemClick = (itemName: string) => {
+    onItemClick(`Расскажи мне о предмете ${itemName}`);
+  };
+
   return (
     <div className="h-full flex flex-col gap-4 p-4">
-      {/* Hero Recommendations */}
+      {/* Hero Picks */}
       <Card className="ornate-border bg-card/80 backdrop-blur-sm flex-1 overflow-hidden">
         <CardHeader className="pb-3">
           <CardTitle className="font-cinzel text-xl flex items-center gap-2">
-            <Swords className="h-5 w-5 text-primary" />
-            Hero Picks
+            <Swords className="h-5 w-5 text-primary" /> Hero Picks
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <ScrollArea className="h-[calc(100%-60px)]">
             <div className="px-4 pb-4 space-y-3">
-              {mockHeroes.map((hero) => (
+              {heroes.map((hero) => (
                 <div
                   key={hero.id}
                   className="flex items-start gap-3 p-3 rounded-lg ornate-border bg-secondary/30 hover:bg-secondary/50 transition-all cursor-pointer glow-hover"
+                  onClick={() => handleHeroClick(hero.localized_name)}
                 >
-                  <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 glow-emerald">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
                     <img
-                      src={heroPlaceholder}
-                      alt={hero.name}
+                      src={hero.img}
+                      alt={hero.localized_name}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-cinzel font-semibold text-primary text-sm">
-                      {hero.name}
+                      {hero.localized_name}
                     </h4>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {hero.category}
-                    </p>
-                    <p className="text-xs text-foreground/80 mt-1 line-clamp-2">
-                      {hero.description}
+                      {hero.roles.join(", ")}
                     </p>
                   </div>
                 </div>
@@ -66,24 +68,28 @@ const RecommendationsPanel = () => {
         </CardContent>
       </Card>
 
-      {/* Item Recommendations */}
+      {/* Item Builds */}
       <Card className="ornate-border bg-card/80 backdrop-blur-sm flex-1 overflow-hidden">
         <CardHeader className="pb-3">
           <CardTitle className="font-cinzel text-xl flex items-center gap-2">
-            <Shield className="h-5 w-5 text-dota-gold" />
-            Item Builds
+            <Shield className="h-5 w-5 text-dota-gold" /> Item Builds
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <ScrollArea className="h-[calc(100%-60px)]">
             <div className="px-4 pb-4 space-y-3">
-              {mockItems.map((item) => (
+              {items.map((item) => (
                 <div
                   key={item.id}
                   className="flex items-start gap-3 p-3 rounded-lg ornate-border bg-secondary/30 hover:bg-secondary/50 transition-all cursor-pointer glow-hover"
+                  onClick={() => handleItemClick(item.name)}
                 >
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0 glow-gold">
-                    <Sparkles className="h-6 w-6 text-primary" />
+                  <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
+                    <img
+                      src={item.img}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-cinzel font-semibold text-primary text-sm">

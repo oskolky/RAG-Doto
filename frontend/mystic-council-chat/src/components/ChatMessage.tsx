@@ -5,8 +5,18 @@ interface ChatMessageProps {
   isUser: boolean;
   timestamp?: string;
 }
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/_(.*?)_/g, "$1")
+    .replace(/`(.*?)`/g, "$1")
+    .replace(/#+\s?(.*)/g, "$1")
+    .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+    .trim();
+}
 
 const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) => {
+  const cleanMessage = stripMarkdown(message);
   return (
     <div
       className={cn(
@@ -33,7 +43,7 @@ const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) => {
               "leading-relaxed whitespace-pre-wrap break-words",
               isUser ? "text-emerald-50 font-medium" : "text-purple-50"
             )}>
-              {message}
+              {cleanMessage}
             </p>
             {timestamp && (
               <span className={cn(

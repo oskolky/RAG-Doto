@@ -20,7 +20,7 @@ const Index = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      text: "Иди траву пощупай, что ты хочешь, может тебе еще тайминги стаков сказать бож",
+      text: "Чем тебе помочь, воин?",
       isUser: false,
       timestamp: new Date().toLocaleTimeString(),
     },
@@ -98,7 +98,7 @@ const Index = () => {
             showRecommendations ? "w-80" : "w-0"
           } hidden lg:block transition-all duration-300 overflow-hidden border-r border-border/50`}
         >
-          {showRecommendations && <RecommendationsPanel history={messages} />}
+          {showRecommendations && <RecommendationsPanel history={messages} onItemClick={handleSendMessage} />}
         </aside>
 
         {/* Chat Area */}
@@ -116,11 +116,11 @@ const Index = () => {
                 </Button>
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-cinzel font-bold bg-gradient-to-r from-purple-400 via-primary to-emerald-400 bg-clip-text text-transparent">
-                    Интеллектуальный ассистент по V POPU 2
+                    Dota2Helper
                   </h1>
                   <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 font-fell flex items-center gap-1">
                     <Sparkles className="h-3 w-3" />
-                    Powered by ana & vladik
+                    Powered by ana & oskolky
                   </p>
                 </div>
               </div>
@@ -180,7 +180,7 @@ const Index = () => {
                 </Button>
               </div>
               <div className="flex-1 overflow-hidden">
-                <RecommendationsPanel history={messages} />
+                <RecommendationsPanel history={messages} onItemClick={handleSendMessage}  />
               </div>
             </div>
           </div>
