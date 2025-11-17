@@ -39,7 +39,7 @@ def chat(query: Query):
 
     response_text = print_response(response)
     # Возвращаем в формате, который ждёт React
-    return {"response": response}
+    return {"response": response_text}
 
 
 

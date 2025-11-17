@@ -36,6 +36,18 @@ def load_item_constants():
             ITEMS_CONSTANTS = {}
     return ITEMS_CONSTANTS
 
+ITEMS_INFO = None
+def load_items_info():
+    global ITEMS_INFO
+    if ITEMS_INFO is None:
+        url = "https://api.opendota.com/api/constants/items"
+        resp = requests.get(url)
+        if resp.status_code == 200:
+            ITEMS_INFO = resp.json()  # тут хранятся все атрибуты предметов
+        else:
+            ITEMS_INFO = {}
+    return ITEMS_INFO
+
 def item_id_to_name(item_id: int) -> str:
     """Преобразует ID предмета в читаемое название."""
     items_map = load_item_constants()
@@ -64,7 +76,42 @@ def trim_messages(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
         ]
     }
 
+
+def get_item_info_by_name(item_name: str) -> str:
+    """Возвращает цену, описание (из abilities) и лор предмета по имени."""
+    items = load_items_info()
+    for key, info in items.items():
+        if key.lower() == item_name.lower() or info.get("dname", "").lower() == item_name.lower():
+            # цена и лор
+            cost = info.get("cost", "Неизвестно")
+            lore = info.get("lore", "Нет лора")
+
+            abilities = info.get("abilities", [])
+            if abilities and "description" in abilities[0]:
+                description = abilities[0]["description"]
+            else:
+                attribs = info.get("attrib", [])
+                if attribs and "key" in attribs[0]:
+                    description = attribs[0]["key"]
+                else:
+                    description = "Нет описания"
+
+            lines = [
+                f"Предмет: {info.get('dname', key)}",
+                f"Цена: {cost}",
+                f"Описание: {description}",
+                f"Лор: {lore}"
+            ]
+            return "\n".join(lines)
+    return f"Информация о предмете '{item_name}' не найдена."
+
+
 # ===== TOOLS =====
+@tool
+def item_info_tool(item_name: str) -> str:
+    """ возвращает полную информацию о предмете Dota 2."""
+    return get_item_info_by_name(item_name)
+
 @tool
 def get_hero_id_by_name(hero_name: str) -> int:
     """Возвращает hero_id по имени героя."""
@@ -157,7 +204,7 @@ def get_hero_items_tool(hero_id: int) -> str:
     except Exception as e:
         return f"Ошибка: {e}"
 
-@tool
+#@tool
 def get_recent_matches(account_id: str, limit: int = 5) -> str:
     """Возвращает последние N матчей игрока в одной строке для LLM"""
     try:
@@ -241,14 +288,15 @@ def print_response(resp):
 
 router_agent = create_agent(
     model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
-    tools=[hero_agent_tool, hero_matchup_tool, player_agent_tool],
+    tools=[hero_agent_tool, hero_matchup_tool, player_agent_tool, item_info_tool],
     middleware=[trim_messages],
     checkpointer=InMemorySaver(),
     system_prompt=(
         "Ты управляющий агент. "
         "Если запрос про героя или его предметы — hero_agent_tool, "
         "если про матчапы — hero_matchup_tool, "
-        "если про игрока — player_agent_tool."
+        "если про игрока передай запрос в — player_agent_tool."
+        "если пользователь спрашивает конкретно про предмет — используй item_info_tool."
     ),
 
 )
@@ -257,5 +305,5 @@ router_agent = create_agent(
 
 # ===== TEST =====
 if __name__ == "__main__":
-    result = get_hero_items_tool(1)
+    result = get_recent_matches("456955781")
     print(result)

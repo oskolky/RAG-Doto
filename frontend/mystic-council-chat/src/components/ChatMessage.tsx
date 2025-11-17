@@ -5,7 +5,9 @@ interface ChatMessageProps {
   isUser: boolean;
   timestamp?: string;
 }
-function stripMarkdown(text: string): string {
+function stripMarkdown(text: string | undefined | null): string {
+  if (!text || typeof text !== "string") return "";
+
   return text
     .replace(/\*\*(.*?)\*\*/g, "$1")
     .replace(/_(.*?)_/g, "$1")
@@ -16,7 +18,7 @@ function stripMarkdown(text: string): string {
 }
 
 const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) => {
-  const cleanMessage = stripMarkdown(message);
+  const cleanMessage = stripMarkdown(message ?? "");
   return (
     <div
       className={cn(
