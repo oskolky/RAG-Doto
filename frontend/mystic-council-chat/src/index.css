@@ -17,7 +17,7 @@ All colors MUST be HSL.
     --popover: 220 18% 10%;
     --popover-foreground: 40 10% 88%;
 
-    --primary: 45 85% 55%;
+    --primary: 210 20% 96%;
     --primary-foreground: 220 20% 10%;
 
     --secondary: 220 15% 18%;
@@ -32,15 +32,15 @@ All colors MUST be HSL.
     --destructive: 0 70% 50%;
     --destructive-foreground: 40 10% 95%;
 
-    --border: 45 30% 25%;
+    --border: 220 12% 26%;
     --input: 220 15% 18%;
-    --ring: 45 85% 55%;
+    --ring: 210 20% 96%;
 
     --radius: 0.5rem;
 
     /* Custom Dota 2 theme colors */
-    --dota-gold: 45 85% 55%;
-    --dota-gold-glow: 45 100% 65%;
+    --dota-gold: 210 20% 96%;
+    --dota-gold-glow: 210 20% 100%;
     --dota-crimson: 0 70% 50%;
     --dota-blue-glow: 210 100% 60%;
     --dota-emerald: 150 80% 45%;
@@ -141,21 +141,6 @@ All colors MUST be HSL.
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Cinzel', serif;
-  }
-
-  /* Ornate border styles */
-  .ornate-border {
-    border: 2px solid hsl(var(--border));
-    box-shadow: var(--shadow-ornate);
-    position: relative;
-  }
-
-  .ornate-border::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border: 1px solid hsl(var(--dota-gold) / 0.3);
-    pointer-events: none;
   }
 
   /* Glow effects */

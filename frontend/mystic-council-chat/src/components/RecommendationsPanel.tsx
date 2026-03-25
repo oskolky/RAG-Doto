@@ -31,7 +31,7 @@ const RecommendationsPanel = ({ onItemClick }: RecommendationsPanelProps) => {
   return (
     <div className="h-full flex flex-col gap-4 p-4">
       {/* Hero Picks */}
-      <Card className="ornate-border bg-card/80 backdrop-blur-sm flex-1 overflow-hidden">
+      <Card className="border border-white/10 bg-card/75 backdrop-blur-sm shadow-lg flex-1 overflow-hidden">
         <CardHeader className="pb-3">
           <CardTitle className="font-cinzel text-xl flex items-center gap-2">
             <Swords className="h-5 w-5 text-primary" /> Hero Picks
@@ -43,7 +43,7 @@ const RecommendationsPanel = ({ onItemClick }: RecommendationsPanelProps) => {
               {heroes.map((hero) => (
                 <div
                   key={hero.id}
-                  className="flex items-start gap-3 p-3 rounded-lg ornate-border bg-secondary/30 hover:bg-secondary/50 transition-all cursor-pointer glow-hover"
+                  className="flex items-start gap-3 p-3 rounded-lg border border-white/10 bg-secondary/20 hover:bg-secondary/35 hover:border-primary/40 transition-colors cursor-pointer"
                   onClick={() => handleHeroClick(hero.localized_name)}
                 >
                   <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
@@ -69,10 +69,10 @@ const RecommendationsPanel = ({ onItemClick }: RecommendationsPanelProps) => {
       </Card>
 
       {/* Item Builds */}
-      <Card className="ornate-border bg-card/80 backdrop-blur-sm flex-1 overflow-hidden">
+      <Card className="border border-white/10 bg-card/75 backdrop-blur-sm shadow-lg flex-1 overflow-hidden">
         <CardHeader className="pb-3">
           <CardTitle className="font-cinzel text-xl flex items-center gap-2">
-            <Shield className="h-5 w-5 text-dota-gold" /> Item Builds
+            <Shield className="h-5 w-5 text-foreground" /> Item Builds
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -81,7 +81,7 @@ const RecommendationsPanel = ({ onItemClick }: RecommendationsPanelProps) => {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-start gap-3 p-3 rounded-lg ornate-border bg-secondary/30 hover:bg-secondary/50 transition-all cursor-pointer glow-hover"
+                  className="flex items-start gap-3 p-3 rounded-lg border border-white/10 bg-secondary/20 hover:bg-secondary/35 hover:border-primary/40 transition-colors cursor-pointer"
                   onClick={() => handleItemClick(item.name)}
                 >
                   <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">

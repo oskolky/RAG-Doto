@@ -13,7 +13,7 @@ const ParticleEffect = () => {
 
   useEffect(() => {
     const colors = [
-      "hsl(45 85% 55%)",    // gold
+      "hsl(210 20% 96%)",   // white
       "hsl(150 80% 45%)",   // emerald
       "hsl(270 70% 55%)",   // purple
       "hsl(210 100% 60%)",  // blue

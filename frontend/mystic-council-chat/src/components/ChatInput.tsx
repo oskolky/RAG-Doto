@@ -29,7 +29,7 @@ const ChatInput = ({ onSendMessage, disabled }: ChatInputProps) => {
   return (
     <form onSubmit={handleSubmit} className="w-full">
       <div className="flex gap-3 items-end">
-        <div className="flex-1 relative ornate-border rounded-lg bg-input/50 backdrop-blur-sm glow-hover">
+        <div className="flex-1 relative rounded-lg border border-white/10 bg-input/50 backdrop-blur-sm shadow-sm transition-colors hover:bg-input/60">
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -42,7 +42,7 @@ const ChatInput = ({ onSendMessage, disabled }: ChatInputProps) => {
         <Button
           type="submit"
           disabled={!message.trim() || disabled}
-          className="ornate-border bg-primary hover:bg-primary/90 text-primary-foreground h-[60px] px-6 glow-hover font-cinzel font-semibold"
+          className="border border-primary/50 bg-primary hover:bg-primary/90 text-primary-foreground h-[60px] px-6 shadow-sm transition-colors font-cinzel font-semibold"
         >
           <Send className="h-5 w-5" />
         </Button>
