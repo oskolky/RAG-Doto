@@ -177,7 +177,7 @@ const Index = () => {
                   className="font-cinzel"
                 >
                   <BookOpen className="h-4 w-4 mr-1" />
-                  Герои и Dota
+                  Герои Dota
                 </Button>
               </div>
             </div>

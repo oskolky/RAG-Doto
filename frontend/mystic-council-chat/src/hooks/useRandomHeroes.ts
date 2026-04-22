@@ -8,6 +8,7 @@ interface Hero {
   attack_type: string;
   roles: string[];
   img: string;
+}
 
 export const useRandomHeroes = (count: number = 3) => {
   const [heroes, setHeroes] = useState<Hero[]>([]);

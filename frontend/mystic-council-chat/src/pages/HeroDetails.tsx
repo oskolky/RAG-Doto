@@ -4,6 +4,7 @@ import { ArrowLeft, Swords } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import backgroundImage from "@/assets/dota-map-background.jpg";
 
 interface HeroDetailsData {
@@ -61,6 +62,9 @@ const HeroDetails = () => {
   const navigate = useNavigate();
   const [hero, setHero] = useState<HeroDetailsData | null>(null);
   const [abilities, setAbilities] = useState<HeroAbilityCard[]>([]);
+  const [heroQuestion, setHeroQuestion] = useState("");
+  const [assistantAnswer, setAssistantAnswer] = useState("");
+  const [isAskingAssistant, setIsAskingAssistant] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const heroId = Number(id);
 
@@ -156,6 +160,34 @@ const HeroDetails = () => {
     }
   }, [heroId]);
 
+  const handleAskAssistant = async () => {
+    if (!hero || !heroQuestion.trim()) return;
+
+    try {
+      setIsAskingAssistant(true);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: `Ты помощник по Dota 2. Ответь максимально кратко, 2-4 коротких предложения, без markdown, без списков, без эмодзи. Герой: ${hero.localized_name}. Вопрос пользователя: ${heroQuestion.trim()}`,
+          thread_id: hero.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}`);
+      }
+
+      const data = await response.json();
+      setAssistantAnswer(String(data?.response ?? "Ассистент не вернул ответ."));
+    } catch (error) {
+      console.error("Failed to get hero assistant answer:", error);
+      setAssistantAnswer("Не удалось получить ответ ассистента. Попробуй еще раз.");
+    } finally {
+      setIsAskingAssistant(false);
+    }
+  };
+
   const attrName = useMemo(() => {
     if (!hero) return "";
     return attrLabels[hero.primary_attr] ?? hero.primary_attr;
@@ -236,6 +268,31 @@ const HeroDetails = () => {
                   <div className="p-3 rounded-lg bg-secondary/30">
                     STR/AGI/INT gain: {hero.str_gain ?? "-"} / {hero.agi_gain ?? "-"} /{" "}
                     {hero.int_gain ?? "-"}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-cinzel text-2xl text-primary">Вопрос ассистенту по герою</h3>
+                  <div className="p-4 rounded-lg bg-secondary/30 space-y-3">
+                    <Textarea
+                      value={heroQuestion}
+                      onChange={(event) => setHeroQuestion(event.target.value)}
+                      placeholder={`Например: как лучше играть на ${hero.localized_name} в начале игры?`}
+                      className="min-h-[90px] text-base bg-background/60"
+                    />
+                    <Button
+                      onClick={handleAskAssistant}
+                      disabled={isAskingAssistant || !heroQuestion.trim()}
+                    >
+                      {isAskingAssistant ? "Отправляю..." : "Спросить ассистента"}
+                    </Button>
+                    {assistantAnswer && (
+                      <div className="p-3 rounded-md bg-background/50 border border-white/10">
+                        <p className="text-base leading-relaxed whitespace-pre-wrap">
+                          {assistantAnswer}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
