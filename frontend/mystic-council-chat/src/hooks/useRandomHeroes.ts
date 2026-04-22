@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 
 interface Hero {
   id: number;
-  name: string;          // внутреннее имя
-  localized_name: string; // отображаемое имя
+  name: string;
+  localized_name: string;
   primary_attr: string;
   attack_type: string;
   roles: string[];
-  img: string;           // рабочая ссылка на картинку
-}
+  img: string;
 
 export const useRandomHeroes = (count: number = 3) => {
   const [heroes, setHeroes] = useState<Hero[]>([]);
