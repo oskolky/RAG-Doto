@@ -165,7 +165,7 @@ const HeroDetails = () => {
 
     try {
       setIsAskingAssistant(true);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/chat`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/chat-qwen`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

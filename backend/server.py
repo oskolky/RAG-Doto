@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from langchain.messages import AIMessage, ToolMessage
-from backend.logic import print_response, router_agent
+from backend.logic import print_response, router_agent, qwen_agent
 
 
 
@@ -42,5 +42,15 @@ def chat(query: Query):
     return {"response": response_text}
 
 
+@app.post("/chat-qwen")
+def chat_qwen(query: Query):
+    response = qwen_agent.invoke(
+        {"messages": [{"role": "user", "content": query.text}]},
+        {"configurable": {"thread_id": query.thread_id}}
+    )
+
+    response_text = print_response(response)
+
+    return {"response": response_text}
 
 

@@ -297,10 +297,7 @@ def print_response(resp):
 # ===== ROUTER AGENT =====
 
 router_agent = create_agent(
-    model=ChatOllama(
-        model="qwen2.5:7b",
-        temperature=0.1
-    ),
+    model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
     tools=[hero_agent_tool, hero_matchup_tool, player_agent_tool, item_info_tool],
     middleware=[trim_messages],
     checkpointer=InMemorySaver(),
@@ -314,7 +311,13 @@ router_agent = create_agent(
 
 )
 
-
+qwen_agent = create_agent(
+    model=ChatOllama(model="qwen2.5:7b", temperature=0.1),
+    tools=[hero_agent_tool, hero_matchup_tool, player_agent_tool, item_info_tool],
+    middleware=[trim_messages],
+    checkpointer=InMemorySaver(),
+    system_prompt="Ты помощник по Dota 2"
+)
 
 # ===== TEST =====
 if __name__ == "__main__":
