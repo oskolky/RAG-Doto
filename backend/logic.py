@@ -1,4 +1,5 @@
 from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langchain.tools import tool
 from langchain.messages import AIMessage, ToolMessage, RemoveMessage
 from langgraph.graph.message import REMOVE_ALL_MESSAGES
@@ -242,19 +243,28 @@ os.environ["OPENAI_API_BASE"] = "https://api.deepseek.com/v1"
 
 # ===== AGENTS =====
 hero_agent = create_agent(
-    model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
+    model=ChatOllama(
+        model="qwen2.5:7b",
+        temperature=0.1
+    ),
     tools=[get_hero_stats, get_hero_benchmarks, get_hero_id_by_name, get_hero_name_by_id, get_hero_items_tool],
     system_prompt="Ты умный помощник, который помогает с анализом данных героев Dota 2.Если пользователь просит показать предметы или сборку для героя, используй инструмент get_hero_items."
 )
 
 hero_matchups_agent = create_agent(
-    model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
+    model=ChatOllama(
+        model="qwen2.5:7b",
+        temperature=0.1
+    ),
     tools=[get_hero_matchups, get_hero_id_by_name],
     system_prompt="Ты умный помощник по матчапам Dota 2"
 )
 
 player_agent = create_agent(
-    model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
+    model=ChatOllama(
+        model="qwen2.5:7b",
+        temperature=0.1
+    ),
     tools=[get_recent_matches],
     system_prompt="Ты специалист по игрокам Dota 2"
 )
@@ -287,7 +297,10 @@ def print_response(resp):
 # ===== ROUTER AGENT =====
 
 router_agent = create_agent(
-    model=ChatOpenAI(model="deepseek-chat", temperature=0.1),
+    model=ChatOllama(
+        model="qwen2.5:7b",
+        temperature=0.1
+    ),
     tools=[hero_agent_tool, hero_matchup_tool, player_agent_tool, item_info_tool],
     middleware=[trim_messages],
     checkpointer=InMemorySaver(),
